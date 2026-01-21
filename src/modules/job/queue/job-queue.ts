@@ -1,3 +1,4 @@
+import { logger } from '../../../logging/logger.ts';
 import { sendJobSimulator } from '../../../main.ts';
 import type { JobEvents } from '../events/job-events.ts';
 import { nodeJobEvents } from '../events/node-job-events.ts';
@@ -7,21 +8,35 @@ import type { JobRepository } from '../repositories/job-repository.ts';
 
 const jobProcessTimeoutMs = 1 * 60 * 1000;
 
+const twoSecMs = 2000;
+
 export class JobQueue {
   private processing = false;
   private pollingInterval: NodeJS.Timeout | null = null;
 
   private static instance: JobQueue | null = null;
 
-  private constructor(
-    private readonly repository: JobRepository,
-    private readonly jobEvents: JobEvents,
-    private readonly sendJob: (job: Job) => Promise<void>,
-    private readonly timeoutMs: number,
-    private readonly pollMs = 2000
-  ) {}
+  private readonly repository: JobRepository;
+  private readonly jobEvents: JobEvents;
+  private readonly sendJob: (job: Job) => Promise<void>;
+  private readonly timeoutMs: number;
+  private readonly pollMs: number;
 
-  static getInstance(): JobQueue {
+  private constructor(
+    repository: JobRepository,
+    jobEvents: JobEvents,
+    sendJob: (job: Job) => Promise<void>,
+    timeoutMs: number,
+    pollMs = twoSecMs
+  ) {
+    this.repository = repository;
+    this.jobEvents = jobEvents;
+    this.sendJob = sendJob;
+    this.timeoutMs = timeoutMs;
+    this.pollMs = pollMs;
+  }
+
+  public static getInstance(): JobQueue {
     if (!JobQueue.instance) {
       JobQueue.instance = new JobQueue(
         inMemoryJobRepository,
@@ -34,19 +49,19 @@ export class JobQueue {
     return JobQueue.instance;
   }
 
-  start() {
+  public start() {
     if (this.pollingInterval) {
       return;
     }
 
-    console.log('start');
+    logger.info('start');
 
     this.pollingInterval = setInterval(() => {
       this.process();
     }, this.pollMs);
   }
 
-  stop() {
+  public stop() {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
@@ -55,29 +70,28 @@ export class JobQueue {
   }
   private async process() {
     if (this.processing) {
-      console.log('[QUEUE] job processando');
+      logger.info('[QUEUE] job processando');
       return;
     }
 
     this.processing = true;
 
     try {
-      // biome-ignore lint/nursery/noUnnecessaryConditions: confia no pai
       while (true) {
         const job = await this.repository.findNextPending();
         if (!job) {
-          console.log('[QUEUE] nenhum job encontrado');
+          logger.info('[QUEUE] nenhum job encontrado');
           break;
         }
 
         try {
           await this.repository.updateStatus(job.id, 'PROCESSING');
-          console.log(`[QUEUE] proximo job ${job.id} começou a processar`);
+          logger.info(`[QUEUE] proximo job ${job.id} começou a processar`);
           this.repository.dump();
           await this.sendJob(job);
           await this.waitForCompletion(job.id);
         } catch (err) {
-          console.log(
+          logger.info(
             `[QUEUE] job ${job.id} deu timeout ${this.timeoutMs}, ${err}`
           );
           this.repository.dump();
@@ -106,7 +120,7 @@ export class JobQueue {
         this.timeoutMs
       );
       this.jobEvents.onceJobCompleted(`JOB_COMPLETED:${jobId}`, () => {
-        console.log(`[QUEUE] job ${jobId} finalizado`);
+        logger.info(`[QUEUE] job ${jobId} finalizado`);
         this.repository.dump();
         clearTimeout(timer);
         resolve();

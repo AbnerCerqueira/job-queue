@@ -1,24 +1,25 @@
 /** biome-ignore-all lint/suspicious/useAwait: aqui pode*/
 
+import { logger } from '../../../logging/logger.ts';
 import type { Job, JobStatus } from '../job.ts';
 import type { JobRepository } from './job-repository.ts';
 
 export class InMemoryJobRepository implements JobRepository {
   private readonly jobs: Job[] = [];
 
-  async save(job: Job): Promise<void> {
+  public async save(job: Job): Promise<void> {
     this.jobs.push(job);
   }
 
-  async findById(jobId: string): Promise<Job | null> {
+  public async findById(jobId: string): Promise<Job | null> {
     return this.jobs.find((j) => j.id === jobId) ?? null;
   }
 
-  async findNextPending(): Promise<Job | null> {
+  public async findNextPending(): Promise<Job | null> {
     return this.jobs.find((j) => j.status === 'PENDING') ?? null;
   }
 
-  async updateStatus(id: string, status: JobStatus): Promise<void> {
+  public async updateStatus(id: string, status: JobStatus): Promise<void> {
     const foundJob = this.jobs.find((j) => j.id === id);
 
     if (foundJob) {
@@ -26,8 +27,8 @@ export class InMemoryJobRepository implements JobRepository {
     }
   }
 
-  dump() {
-    console.table(this.jobs);
+  public dump() {
+    logger.info(this.jobs);
   }
 }
 

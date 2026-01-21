@@ -2,7 +2,7 @@ export type JobStatus = 'PENDING' | 'PROCESSING' | 'DONE' | 'FAILED';
 
 export type Job = {
   id: string;
-  payload: any;
+  payload: unknown;
   status: JobStatus;
   createdAt: Date;
 };

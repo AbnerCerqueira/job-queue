@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { logger } from '../logging/logger.ts';
 import { nodeJobEvents } from '../modules/job/events/node-job-events.ts';
 import { inMemoryJobRepository } from '../modules/job/repositories/in-memory-job-repository.ts';
 import { HTTP_STATUS } from './utils.ts';
@@ -9,7 +10,7 @@ export const routes = (app: FastifyInstance) => {
 
     const foundJob = await inMemoryJobRepository.findById(id);
 
-    console.log('[ENDPOINT] notificação de sucesso recebida');
+    logger.info('[ENDPOINT] notificação de sucesso recebida');
 
     switch (foundJob?.status) {
       case 'DONE':
