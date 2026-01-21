@@ -1,10 +1,10 @@
-import { logger } from '../../../logging/logger.ts';
-import { sendJobSimulator } from '../../../main.ts';
-import type { JobEvents } from '../events/job-events.ts';
-import { nodeJobEvents } from '../events/node-job-events.ts';
-import type { Job } from '../job.ts';
-import { inMemoryJobRepository } from '../repositories/in-memory-job-repository.ts';
-import type { JobRepository } from '../repositories/job-repository.ts';
+import { logger } from '../../../logging/logger';
+import { sendJobSimulator } from '../../../main';
+import type { JobEvents } from '../events/job-events';
+import { nodeJobEvents } from '../events/node-job-events';
+import type { Job } from '../job';
+import { inMemoryJobRepository } from '../repositories/in-memory-job-repository';
+import type { JobRepository } from '../repositories/job-repository';
 
 const jobProcessTimeoutMs = 1 * 60 * 1000;
 

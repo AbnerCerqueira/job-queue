@@ -1,8 +1,8 @@
 /** biome-ignore-all lint/suspicious/useAwait: aqui pode*/
 
-import { logger } from '../../../logging/logger.ts';
-import type { Job, JobStatus } from '../job.ts';
-import type { JobRepository } from './job-repository.ts';
+import { logger } from '../../../logging/logger';
+import type { Job, JobStatus } from '../job';
+import type { JobRepository } from './job-repository';
 
 export class InMemoryJobRepository implements JobRepository {
   private readonly jobs: Job[] = [];

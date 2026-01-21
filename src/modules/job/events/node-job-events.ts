@@ -1,5 +1,5 @@
 import EventEmitter from 'node:events';
-import type { JobEvents, JobEventsTypes } from './job-events.ts';
+import type { JobEvents, JobEventsTypes } from './job-events';
 
 export class NodeJobEvents implements JobEvents {
   private readonly eventEmitter: EventEmitter;

@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-import { logger } from '../logging/logger.ts';
-import { nodeJobEvents } from '../modules/job/events/node-job-events.ts';
-import { inMemoryJobRepository } from '../modules/job/repositories/in-memory-job-repository.ts';
-import { HTTP_STATUS } from './utils.ts';
+import { logger } from '../logging/logger';
+import { nodeJobEvents } from '../modules/job/events/node-job-events';
+import { inMemoryJobRepository } from '../modules/job/repositories/in-memory-job-repository';
+import { HTTP_STATUS } from './utils';
 
 export const routes = (app: FastifyInstance) => {
   app.get('/finish/:id', async (request, reply) => {

@@ -1,4 +1,4 @@
-import type { Job, JobStatus } from '../job.ts';
+import type { Job, JobStatus } from '../job';
 
 export interface JobRepository {
   save(job: Job): Promise<void>;
