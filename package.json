@@ -13,11 +13,11 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.2",
+    "@biomejs/biome": "^2.3.11",
     "@types/node": "^24.5.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
-    "ultracite": "^5.3.7"
+    "ultracite": "^7.0.12"
   },
   "dependencies": {
     "fastify": "^5.6.0"
