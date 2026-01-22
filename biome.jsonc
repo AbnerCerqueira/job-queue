@@ -12,7 +12,8 @@
           "options": {
             "accessibility": "explicit"
           }
-        }
+        },
+        "noParameterProperties": "off"
       }
     }
   },
