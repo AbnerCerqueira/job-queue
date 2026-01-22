@@ -1,18 +1,50 @@
-import { app } from './app.ts';
-import { logger } from './logging/logger.ts';
-import type { Job } from './modules/job/job.ts';
-import { JobQueue } from './modules/job/queue/job-queue.ts';
-import { seedJobs } from './seed.ts';
+import { setTimeout } from 'node:timers/promises';
+import NodeEventBus from './events/node-event-bus';
+import { logger } from './logging/logger';
+import { FinishJobEvent, NewJobEvent } from './queue/job';
+import { Queue } from './queue/queue';
 
-export const sendJobSimulator = async (job: Job) => {
-  logger.info(`[EXTERNAL] job ${job.id} enviado para serviço externo`);
-};
-(() => {
-  seedJobs();
+(async () => {
+  // inicia fila
+  const queue = Queue.getInstance();
+  queue.listen();
 
-  const queue = JobQueue.getInstance();
+  // adiciona 3 jobs à fila
+  for (let i = 1; i <= 3; i += 1) {
+    NodeEventBus.getInstance().emit(
+      new NewJobEvent({
+        id: `${i}`,
+        status: 'PENDING',
+        createdAt: new Date(),
+        payload: {},
+      })
+    );
+  }
 
-  queue.start();
+  logger.info(queue.findAllJobs());
 
-  app.listen({ port: 3000 }, () => logger.info('server is running'));
+  // finaliza primeiro job
+  const fiveSeconds = 5000;
+  await setTimeout(fiveSeconds);
+  NodeEventBus.getInstance().emit(
+    new FinishJobEvent({
+      id: '1',
+      status: 'DONE',
+      createdAt: new Date(),
+      payload: {},
+    })
+  );
+
+  // finaliza segundo job
+  await setTimeout(fiveSeconds);
+  NodeEventBus.getInstance().emit(
+    new FinishJobEvent({
+      id: '2',
+      status: 'FAILED',
+      createdAt: new Date(),
+      payload: {},
+    })
+  );
+
+  // terceiro job ira sofrer timeout
 })();
